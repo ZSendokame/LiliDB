@@ -28,6 +28,7 @@ class Database:
 
         self.close()
         print(''.join(traceback.format_tb(trace)))
+        print(f'{type}: {message}')
 
     def __enter__(self):
         return self
