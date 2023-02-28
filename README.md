@@ -1,6 +1,6 @@
 # LiliDB
 *Lili* ("Small" in Toki Pona) it's a small Key-Value database library.<br>
-No third-party dependencies, pure Python and safe to use!.<br>
+No third-party dependencies, pure Python and safe to use!<br>
 
 # Install
 ```sh
