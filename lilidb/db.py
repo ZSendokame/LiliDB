@@ -17,8 +17,9 @@ class Database:
             {} if os.path.getsize(database) == 0
             else json.load(self.file)
         )
-
         sys.excepthook = self.__failure__
+
+        self.file.close()
 
     def __failure__(self, type, message, trace):
         if self.__dumping__:
@@ -47,11 +48,14 @@ class Database:
 
         return None
 
-    def get(self, key: str) -> Any:
+    def get(self, key: str, default: Any = None, type: None = None) -> (Any | None):
         if self.exists(key):
-            return self.database[key]
+            value = self.database[key]
+            value = value if type is None else type(value)
 
-        return None
+            return value
+
+        return default
 
     def remove(self, key: str) -> Any:
         return self.database.pop(key)
@@ -60,6 +64,15 @@ class Database:
         self.database[new] = self.database.pop(key)
 
         return None
+
+    def update(self, new: dict, key: str = None) -> int:
+        if key is not None:
+            self.database[key].update(new)
+
+        else:
+            self.database.update(new)
+
+        return self.length()
 
     def query(self, func: Callable) -> list[tuple]:
         return [
@@ -81,21 +94,16 @@ class Database:
 
         return None
 
-    def length(self, key: str = None) -> int:
-        if key is not None and self.exists(key):
-            return len(self.get(key))
-
+    def length(self) -> int:
         return len(self.database)
 
     def dump(self, filename: str = None) -> None:
         self.__dumping__ = True
 
-        if filename is not None:
-            mode = 'r' if os.path.exists(filename) else 'x'
-            self.file = open(filename, mode=mode)
-
         with self.__lock__:
-            with open(self.file.name, 'w') as file:
+            file = self.file.name if filename is None else filename
+
+            with open(file, 'w') as file:
                 json.dump(self.database, file, indent=4)
 
         self.__dumping__ = False
