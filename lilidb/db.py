@@ -8,6 +8,9 @@ from typing import Any, Callable
 
 
 class Database:
+    """Database class
+    The ``Database`` class handles a JSON file and a dictionary, the JSON content converted.
+    """
     def __init__(self, database: str):
         self.__dumping__ = False
         self.__lock__ = threading.Lock()
@@ -38,7 +41,16 @@ class Database:
         self.close()
         self.dump()
 
+    def __len__(self) -> int:
+        return len(self.database)
+
     def set(self, key: str, value: Any, algo: str = None) -> None:
+        """Set a new key
+        :param key: Key to create
+        :param value: The Key value
+        :param algo: (Optional) Hashing algorithm to encrypt the key
+        """
+
         if algo is not None and algo in hashlib.algorithms_available:
             algo = hashlib.__getattribute__(algo)
             value = algo(bytes(value, 'utf-8')).hexdigest()
@@ -49,32 +61,43 @@ class Database:
         return None
 
     def get(self, key: str, default: Any = None, type: None = None) -> (Any | None):
-        if self.exists(key):
-            value = self.database[key]
-            value = value if type is None else type(value)
+        """Get a existing key
+        :param key: Key to retrieve
+        :param default: (Optional) A default value to return in case the key does not exists
+        :param type: (Optional) Convert the key type into the selected
+        """
 
-            return value
+        value = self.database.get(key, default)
 
-        return default
+        return value if type is None else type(value)
 
     def remove(self, key: str) -> Any:
+        """Remove a key
+        :param key: Key to remove
+        """
         return self.database.pop(key)
 
     def rename(self, key: str, new: str) -> None:
+        """Rename a Key
+        :param key: Old key to replace
+        :param new: New name
+        """
         self.database[new] = self.database.pop(key)
 
         return None
 
-    def update(self, new: dict, key: str = None) -> int:
-        if key is not None:
-            self.database[key].update(new)
+    def update(self, data: dict) -> int:
+        """Merge database with data
+        :param data: Data to merge with
+        """
+        self.database.update(data)
 
-        else:
-            self.database.update(new)
-
-        return self.length()
+        return len(self)
 
     def query(self, func: Callable) -> list[tuple]:
+        """Filter objects using a callable object
+        :param func: Callable object with two parameters (key and value), that returns a bool
+        """
         return [
             (key, value)
             for key, value in self.database.items()
@@ -82,9 +105,13 @@ class Database:
         ]
 
     def exists(self, key: str) -> bool:
+        """Check if a key exists
+        :param key: Key to check
+        """
         return key in self.database
 
     def clear(self) -> None:
+        """Delete the entire database dictionary"""
         self.database.clear()
 
         return None
@@ -94,10 +121,10 @@ class Database:
 
         return None
 
-    def length(self) -> int:
-        return len(self.database)
-
     def dump(self, filename: str = None) -> None:
+        """Save the database to a file
+        :param filename: (Optional) File to save
+        """
         self.__dumping__ = True
 
         with self.__lock__:
