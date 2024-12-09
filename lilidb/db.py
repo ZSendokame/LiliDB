@@ -17,7 +17,7 @@ class Database:
         sys.excepthook = self.__failure__
 
     def __failure__(self, type, message, trace):
-        with open(self.file.name, 'w') as file:
+        with open(self.name, 'w') as file:
             file.write('')
             self.dump()
 
