@@ -4,7 +4,7 @@ long_description = open('./README.md')
 
 setup(
     name='LiliDB',
-    version='1.0.2',
+    version='1.1.0',
     url='https://github.com/ZSendokame/LiliDB',
     license='MIT license',
     author='ZSendokame',
