@@ -3,7 +3,7 @@ import json
 import threading
 from typing import Any, Callable
 
-import utils
+from . import utils
 
 
 class Database:
